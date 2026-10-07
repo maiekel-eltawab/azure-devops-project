@@ -1,0 +1,19 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Variables / Secrets
+*.tfvars
+*.tfvars.json
+.env
+.env.*
+
+# Keys
+*.pem
+*.key
+
+# Editors
+.vscode/
+.idea/
