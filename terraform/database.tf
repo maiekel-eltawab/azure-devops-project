@@ -1,3 +1,22 @@
+resource "azurerm_private_dns_zone" "postgresql" {
+  name                = "devops-project.postgres.database.azure.com"
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    environment = "dev"
+    project     = "azure-devops-project"
+    managed_by  = "terraform"
+  }
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "postgresql" {
+  name                  = "postgresql-vnet-link"
+  private_dns_zone_name = azurerm_private_dns_zone.postgresql.name
+  virtual_network_id    = azurerm_virtual_network.main.id
+  resource_group_name   = azurerm_resource_group.main.name
+  registration_enabled  = false
+}
+
 resource "azurerm_virtual_network" "database" {
   name                = "vnet-database-dev"
   address_space       = ["10.20.0.0/16"]
@@ -16,6 +35,8 @@ resource "azurerm_subnet" "database_northeurope" {
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.database.name
   address_prefixes     = ["10.20.1.0/24"]
+
+  service_endpoints = ["Microsoft.Storage"]
 
   delegation {
     name = "postgresql-delegation"
@@ -44,32 +65,21 @@ resource "azurerm_virtual_network_peering" "database_to_main" {
   remote_virtual_network_id = azurerm_virtual_network.main.id
 }
 
-
-resource "azurerm_private_dns_zone" "postgresql" {
-  name                = "devops-project.postgres.database.azure.com"
-  resource_group_name = azurerm_resource_group.main.name
-
-  tags = {
-    environment = "dev"
-    project     = "azure-devops-project"
-    managed_by  = "terraform"
-  }
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "postgresql" {
-  name                  = "postgresql-vnet-link"
+resource "azurerm_private_dns_zone_virtual_network_link" "postgresql_database" {
+  name                  = "postgresql-database-vnet-link"
   private_dns_zone_name = azurerm_private_dns_zone.postgresql.name
-  virtual_network_id    = azurerm_virtual_network.main.id
+  virtual_network_id    = azurerm_virtual_network.database.id
   resource_group_name   = azurerm_resource_group.main.name
-
-  registration_enabled = false
+  registration_enabled  = false
 }
+
 resource "azurerm_postgresql_flexible_server" "main" {
   name                = "psql-devops-project-dev"
   resource_group_name = azurerm_resource_group.main.name
   location            = "North Europe"
 
   version = "16"
+  zone    = "1"
 
   delegated_subnet_id           = azurerm_subnet.database_northeurope.id
   private_dns_zone_id           = azurerm_private_dns_zone.postgresql.id
@@ -90,14 +100,6 @@ resource "azurerm_postgresql_flexible_server" "main" {
   }
 
   depends_on = [
-    azurerm_private_dns_zone_virtual_network_link.postgresql
+    azurerm_private_dns_zone_virtual_network_link.postgresql_database
   ]
-}
-resource "azurerm_private_dns_zone_virtual_network_link" "postgresql_database" {
-  name                  = "postgresql-database-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.postgresql.name
-  virtual_network_id    = azurerm_virtual_network.database.id
-  resource_group_name   = azurerm_resource_group.main.name
-
-  registration_enabled = false
 }
