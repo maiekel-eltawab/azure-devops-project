@@ -1,3 +1,4 @@
+
 name: Backend CI
 
 on:
@@ -34,4 +35,7 @@ jobs:
         with:
           context: ./application/backend
           push: true
-          tags: ghcr.io/maiekel-eltawab/azure-devops-project-backend:v1
+          tags: |
+            ghcr.io/maiekel-eltawab/azure-devops-project-backend:v1
+            ghcr.io/maiekel-eltawab/azure-devops-project-backend:sha-${{ github.sha }}
+
