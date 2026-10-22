@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: flask-backend
-          image: ghcr.io/maiekel-eltawab/azure-devops-project-backend:v1
+          image: ghcr.io/maiekel-eltawab/azure-devops-project-backend:sha-c146461b3f30b195b7612799017ccd7a23d8a501
 
           ports:
             - containerPort: 5000
