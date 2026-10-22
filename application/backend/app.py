@@ -32,6 +32,14 @@ def health():
     }
 
 
+@app.route("/version")
+def version():
+    return {
+        "version": "v2",
+        "deployment": "automated-gitops"
+    }
+
+
 @app.route("/db-health")
 def db_health():
     try:
