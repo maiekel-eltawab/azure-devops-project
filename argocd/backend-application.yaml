@@ -13,5 +13,6 @@ spec:
     server: https://kubernetes.default.svc
     namespace: devops-app
   syncPolicy:
+    automated: {}
     syncOptions:
       - CreateNamespace=false
