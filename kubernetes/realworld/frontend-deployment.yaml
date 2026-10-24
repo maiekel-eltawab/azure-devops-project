@@ -1,0 +1,37 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realworld-frontend
+  namespace: realworld
+  labels:
+    app: realworld-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: realworld-frontend
+  template:
+    metadata:
+      labels:
+        app: realworld-frontend
+    spec:
+      containers:
+        - name: nginx
+          image: ghcr.io/maiekel-eltawab/azure-devops-project-realworld-frontend:sha-4109f32cf2f54db2bd11cbc3ab74d2aebece397e
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20

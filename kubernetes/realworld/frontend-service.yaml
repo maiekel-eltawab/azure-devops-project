@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: realworld-frontend-service
+  namespace: realworld
+spec:
+  type: ClusterIP
+  selector:
+    app: realworld-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

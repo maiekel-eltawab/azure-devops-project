@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realworld-backend
+  namespace: realworld
+  labels:
+    app: realworld-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: realworld-backend
+  template:
+    metadata:
+      labels:
+        app: realworld-backend
+    spec:
+      containers:
+        - name: django
+          image: ghcr.io/maiekel-eltawab/azure-devops-project-realworld-backend:sha-4109f32cf2f54db2bd11cbc3ab74d2aebece397e
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: realworld-secrets
+          env:
+            - name: DEBUG
+              value: "False"
+            - name: ALLOWED_HOSTS
+              value: "realworld-backend-service;localhost;127.0.0.1"
+            - name: CORS_ALLOWED_ORIGINS
+              value: ""

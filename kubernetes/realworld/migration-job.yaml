@@ -1,0 +1,32 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: realworld-migrations
+  namespace: realworld
+  labels:
+    app: realworld-backend
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: realworld-migrations
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: ghcr.io/maiekel-eltawab/azure-devops-project-realworld-backend:sha-4109f32cf2f54db2bd11cbc3ab74d2aebece397e
+          imagePullPolicy: IfNotPresent
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          envFrom:
+            - secretRef:
+                name: realworld-secrets
+          env:
+            - name: DEBUG
+              value: "False"
+            - name: ALLOWED_HOSTS
+              value: "localhost;127.0.0.1;realworld-backend-service"
