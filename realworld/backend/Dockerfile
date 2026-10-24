@@ -1,22 +1,27 @@
 FROM python:3.12-slim-bookworm
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y libpq-dev \
-    && apt-get install -y gcc
+    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --upgrade pip
 
-RUN pip install --upgrade pip 
-
-COPY ./pyproject.toml .
+COPY pyproject.toml README.md ./
+COPY apps/ ./apps/
+COPY config/ ./config/
+COPY helpers/ ./helpers/
+COPY manage.py ./
 
 RUN pip install .
 
-COPY . .
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+RUN apt-get purge -y --auto-remove gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8000
 
